@@ -194,7 +194,10 @@ function resetGameToInitial() {
   document.getElementById('intro').classList.remove('hidden');
   const fin = document.getElementById('final');
   fin.classList.remove('show');
-  document.getElementById('typed').textContent = '';
+
+
+
+  //document.getElementById('typed').textContent = '';
   heartsLayer.innerHTML = '';
 
   for (const b of state.badges) { b.remove(); }
