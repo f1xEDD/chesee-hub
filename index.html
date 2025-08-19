@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Маленький квест: Прости</title>
+  <!-- Google Fonts для страницы (кириллица) -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap&subset=cyrillic"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <!-- jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="auth-gate" id="authGate" aria-modal="true" role="dialog">
+    <div class="auth-card" id="authCard">
+      <div class="auth-emoji">🔒</div>
+      <h2>Закрыто только для нас</h2>
+      <p>Введи секретное слово</p>
+      <div class="auth-row">
+        <input type="password" id="authPwd" placeholder="Секретное слово" autocomplete="current-password" />
+        <button class="btn" id="authOk">Войти</button>
+      </div>
+      <div class="auth-msg" id="authMsg"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">🧀</div>
+        <div class="title">CHASI hub</div>
+      </div>
+      <div class="hud">
+        <div class="chip">Собери слово:
+          <div class="letters-indicator" id="lettersIndicator"></div>
+        </div>
+        <div class="chip">Управление: стрелки / WASD <span class="tip">или кнопки справа</span></div>
+      </div>
+    </header>
+
+    <div class="top-bar">
+      <div class="tabs">
+        <button class="tab active" data-tab="game">Игра</button>
+        <button class="tab" data-tab="bubble">Боба 🧋</button>
+        <button class="btn" id="wishlistBtn" title="Список желаний" style="margin-left: 3rem;">Виш‑лист 🎁</button>
+      </div>
+      <button class="btn" id="resetBtn" title="Сбросить">Сброс</button>
+    </div>
+
+    <!-- PAGE: GAME -->
+    <section id="page-game" class="page active">
+      <div class="game">
+        <div class="stage" id="stage">
+          <div class="hero" id="hero" aria-label="герой" title="Это я">🐭</div>
+          <div class="hearts" id="hearts"></div>
+
+          <!-- on-screen controls -->
+          <div class="controls" aria-hidden="false">
+            <div class="btnc empty"></div>
+            <div class="btnc" data-dir="up">⬆️</div>
+            <div class="btnc empty"></div>
+            <div class="btnc" data-dir="left">⬅️</div>
+            <div class="btnc" data-dir="down">⬇️</div>
+            <div class="btnc" data-dir="right">➡️</div>
+            <div class="btnc empty"></div>
+            <div class="btnc empty"></div>
+            <div class="btnc empty"></div>
+          </div>
+
+          <!-- intro overlay -->
+          <div class="overlay" id="intro">
+            <div class="card">
+              <!-- <h1>Собери все буквы слова «ПРОСТИ»</h1> -->
+              <h1>Помоги квысе 🐭 найти буквы</h1>
+              <button class="btn" id="startBtn">Начать</button>
+            </div>
+          </div>
+
+          <!-- final message -->
+          <div class="final" id="final">
+            <div>
+              <div class="typed" id="typed"></div>
+              <div class="accept">
+                <button class="btn" id="acceptBtn">Принять извинения 💕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: BUBBLE TEA BUILDER -->
+    <section id="page-bubble" class="page">
+      <div class="bb">
+        <div class="bb-wrap">
+          <div class="bb-controls">
+            <h3>Собери бабл‑ти мечты ✨</h3>
+            <div class="bb-row">
+              <div class="bb-field">
+                <label>База</label>
+                <select id="bbBase">
+                  <option value="black">Чёрный чай</option>
+                  <option value="green">Зелёный чай</option>
+                  <option value="oolong">Улун</option>
+                  <option value="thai">Тайский чай</option>
+                  <option value="jasmine">Жасминовый</option>
+                </select>
+              </div>
+              <div class="bb-field">
+                <label>Молоко</label>
+                <select id="bbMilk">
+                  <option value="none">Без молока</option>
+                  <option value="dairy">Обычное</option>
+                  <option value="oat">Овсяное</option>
+                  <option value="coconut">Кокосовое</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bb-row">
+              <div class="bb-field">
+                <label>Вкус</label>
+                <select id="bbFlavor">
+                  <option value="none">Без вкуса</option>
+                  <option value="strawberry">Клубника</option>
+                  <option value="mango">Манго</option>
+                  <option value="taro">Таро</option>
+                  <option value="matcha">Матча</option>
+                  <option value="caramel">Карамель</option>
+                </select>
+              </div>
+              <div class="bb-field">
+                <label>Сладость: <span id="bbSweetVal">50%</span></label>
+                <input type="range" id="bbSweet" min="0" max="120" step="10" value="50" />
+              </div>
+            </div>
+
+            <div class="bb-row">
+              <div class="bb-field">
+                <label>Лёд: <span id="bbIceVal">50%</span></label>
+                <input type="range" id="bbIce" min="0" max="100" step="10" value="50" />
+              </div>
+              <div class="bb-field">
+                <label>Топпинги</label>
+                <div class="checkline">
+                  <label><input type="checkbox" id="bbBoba" checked /> Тапиока</label>
+                  <label><input type="checkbox" id="bbJelly" /> Кокосовое желе</label>
+                  <label><input type="checkbox" id="bbPopping" /> Поппин' боба</label>
+                  <label><input type="checkbox" id="bbFoam" /> Сырная пена</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="bb-actions">
+              <button class="btn" id="bbShake">Встряхнуть ✨</button>
+              <button class="btn secondary" id="bbToWishlist">В виш‑лист</button>
+              <button class="btn secondary" id="bbCopy">Скопировать рецепт</button>
+            </div>
+          </div>
+
+          <div class="bb-preview">
+            <div class="cup-wrap">
+              <div class="cup" id="bbCup">
+                <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Стакан -->
+                  <defs>
+                    <clipPath id="cup-clip">
+                      <path
+                        d="M60,30 h180 a12,12 0 0 1 12,12 v300 a30,30 0 0 1 -30,30 H78 a30,30 0 0 1 -30,-30 V42 a12,12 0 0 1 12,-12 z" />
+                    </clipPath>
+                    <linearGradient id="glass-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"></stop>
+                      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.15"></stop>
+                      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"></stop>
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Жидкость (слои рисуем внутри клипа) -->
+                  <g clip-path="url(#cup-clip)" id="bbLiquid">
+                    <rect id="layer-base" x="60" y="330" width="180" height="0" fill="#8b5e3c"></rect>
+                    <rect id="layer-flavor" x="60" y="330" width="180" height="0" fill="#ff6b81" opacity="0.55"></rect>
+                    <rect id="layer-milk" x="60" y="330" width="180" height="0" fill="#fff8f0" opacity="0.0"></rect>
+
+                    <!-- Пузырьки/физз -->
+                    <g id="fizzLayer"></g>
+
+                    <!-- Жемчуг / желе / поппинг боба -->
+                    <g id="toppingsLayer"></g>
+                  </g>
+
+                  <!-- Лёд поверх -->
+                  <g id="iceLayer"></g>
+
+                  <!-- Контур стакана и блик -->
+                  <path
+                    d="M60,30 h180 a12,12 0 0 1 12,12 v300 a30,30 0 0 1 -30,30 H78 a30,30 0 0 1 -30,-30 V42 a12,12 0 0 1 12,-12 z"
+                    fill="none" stroke="#cbd5e1" stroke-width="4" />
+                  <rect x="72" y="40" width="24" height="290" rx="12" fill="url(#glass-grad)" />
+                </svg>
+              </div>
+            </div>
+            <div class="bb-desc" id="bbDesc"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wishlist Modal -->
+    <div class="modal" id="wishlistModal" aria-hidden="true">
+      <div class="panel">
+        <h2>Список желаний для тебя 🎁</h2>
+        <p>Помоги дополнить список 😇</p>
+
+        <form class="wl-form" id="wlForm">
+          <div class="wl-input full">
+            <label>Название*</label>
+            <input type="text" id="wlTitle" placeholder="Например: ужин в Арачича" required />
+          </div>
+          <div class="wl-input full">
+            <label>Ссылка (необязательно)</label>
+            <input type="url" id="wlLink" placeholder="https://..." />
+          </div>
+          <div class="wl-input full">
+            <label>Категория</label>
+            <input type="text" id="wlCategory" placeholder="Чито это" />
+          </div>
+          <div class="wl-input full">
+            <label>Комментарий</label>
+            <textarea id="wlNote" placeholder="Аписании"></textarea>
+          </div>
+        </form>
+
+        <div class="wl-actions">
+          <button class="btn" id="wlAddBtn">Добавить в список</button>
+          <button class="btn secondary" id="wlExportBtn" title="Сохранить в PDF" style="display: none;">Экспорт в
+            PDF</button>
+          <button class="btn secondary" id="wlClearBtn" title="Очистить список">Очистить</button>
+          <button class="btn secondary" id="wlCloseBtn">Закрыть</button>
+        </div>
+
+        <div class="wl-list" id="wlList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
