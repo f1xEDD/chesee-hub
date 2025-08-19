@@ -75,6 +75,19 @@ tabs.forEach(btn => btn.addEventListener('click', () => {
   }
 }));
 
+function isEditable(el){
+  if (!el) return false;
+  return el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/i.test(el.tagName);
+}
+function isModalOpen(){
+  return document.querySelector('.modal.show') !== null;
+}
+function isGameActive(){
+  const pg = document.getElementById('page-game');
+  return pg && pg.classList.contains('active');
+}
+
+
 // ====== Игра ======
 const SECRET_WORD = 'ПРОСТИ';
 const FINAL_TEXT = 'Прасти миня ЧЧ, бывшему руководству "Дивана Слева" очень стыдно 😭';
@@ -167,12 +180,19 @@ document.getElementById('acceptBtn').addEventListener('click', () => { rainHeart
 
 addEventListener('resize', bounds);
 addEventListener('keydown', (e) => {
-  if (!isAuthed) return; // ✦ guard
-  const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyA', 'KeyS', 'KeyD'];
-  if (keys.includes(e.code)) { state.pressed.add(e.code); e.preventDefault(); }
+  // не реагируем, если нет авторизации / открыта модалка / печатаем в поле / не страница игры
+  if (typeof isAuthed !== 'undefined' && !isAuthed) return;
+  if (isModalOpen() || isEditable(e.target) || !isGameActive()) return;
+
+  const keys = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'];
+  if (keys.includes(e.code)) {
+    state.pressed.add(e.code);
+    e.preventDefault();
+  }
 });
 addEventListener('keyup', (e) => {
-  if (!isAuthed) return; // ✦ guard
+  if (typeof isAuthed !== 'undefined' && !isAuthed) return;
+  if (isModalOpen() || !isGameActive()) return;
   state.pressed.delete(e.code);
 });
 document.querySelectorAll('.btnc[data-dir]').forEach(btn => {
