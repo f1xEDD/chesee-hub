@@ -77,8 +77,8 @@ tabs.forEach(btn => btn.addEventListener('click', () => {
 
 // ====== Игра ======
 const SECRET_WORD = 'ПРОСТИ';
-const FINAL_TEXT = 'Прасти миня ЧЧ';
-const ACCEPT_TEXT = 'Спасибо, что даёшь мне шанс. Я постараюсь быть лучше каждый день.';
+const FINAL_TEXT = 'Прасти миня ЧЧ, бывшему руководству "Дивана Слева" очень стыдно 😭';
+const ACCEPT_TEXT = '';
 const SPEED = 240;
 
 const $ = s => document.querySelector(s);
